@@ -1,15 +1,18 @@
 mod graphql_schema;
 use crate::graphql_schema::*;
+mod schema;
 
 #[macro_use]
 extern crate juniper;
+extern crate diesel;
+
+
 use std::io;
 use std::sync::Arc;
 use actix_web::{web, App, Error, HttpResponse, HttpServer};
 use futures::future::Future;
 use juniper::http::graphiql::graphiql_source;
 use juniper::http::GraphQLRequest;
-
 
 //  '/graphql'
 fn graphql(
@@ -38,7 +41,7 @@ fn graphiql() -> HttpResponse {
 
 
  fn main() -> io::Result<()> {
-
+    dotenv().ok();
     let schema = Arc::new(create_schema());
     //  This allows shared immutable state across the threads 
 
@@ -50,7 +53,9 @@ fn graphiql() -> HttpResponse {
         .service(web::resource("/graphiql").route(web::get().to(graphiql)))
     })
     .workers(1)
+    
     .bind("127.0.0.1:8080")?
+    
     .run()
    
 
